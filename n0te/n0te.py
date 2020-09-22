@@ -6,12 +6,23 @@ import sys
 
 class n0te():
     def __init__(self):
-        self.editor = "atom"                                        #$$$$$$$$ CHANGE THIS $$$$$$$$
+        self.editor = "vim"                                        #$$$$$$$$ CHANGE THIS $$$$$$$$
         # Dir to save n0tes
         self.dir = "%s/Documents/notes/" % str(Path.home())         #$$$$$$$$ CHANGE THIS $$$$$$$$ default value is $HOME/Documents/notes/
         self.main()
 
-    def list_notes(self):
+
+    def banner(self):
+        print("""
+        ███╗   ██╗ ██████╗ ████████╗███████╗
+        ████╗  ██║██╔═████╗╚══██╔══╝██╔════╝
+        ██╔██╗ ██║██║██╔██║   ██║   █████╗
+        ██║╚██╗██║████╔╝██║   ██║   ██╔══╝
+        ██║ ╚████║╚██████╔╝   ██║   ███████╗
+        ╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚══════╝
+        """)
+
+    def list_notes(self,letter=None):
         """
         List notes into directory
         :return: print '.md' files
@@ -24,7 +35,15 @@ class n0te():
             list_files[w]=list_files[w].replace(".md","")   # replace '.md'
         if list_files[0] == "": #delete empty
             list_files.remove(list_files[0])
-        [print(w) for w in list_files]          # print notes
+        if letter == None: # print notes
+            print("Note list:")
+            [print("• "+w) for w in list_files]          
+        else:
+            print("Note list with '%s' keyword:" % letter)
+            for w in list_files:
+                if w.startswith(letter):
+                    print("\t• "+w)
+        
 
     def verify_note(self, note):
         """
@@ -47,7 +66,7 @@ class n0te():
             #subprocess.run(["mdv", "/home/dylan/Documents/notes/"+note, "|", "lolcat"])
             import os
             #os.system("mdv "+self.dir+note+" | lolcat")
-            os.system("mdv "+self.dir+note)
+            os.system("mdless "+self.dir+note)
         else:
             print("404 n0te not found..")
 
@@ -62,10 +81,10 @@ class n0te():
             if rep.upper() == "Y":
                 creer = True
         if self.verify_note(note) != -1 or creer is True:
-            print("Openning  d'%s" %self.editor)
-            print("%s/Documents/note/%s" %(dir,note))
+            print("Openning %s" %self.editor)
+            #print("%s/Documents/note/%s" %(dir,note))
 
-            subprocess.run(["atom", "%s%s" %(self.dir,note)])
+            subprocess.run([self.editor, "%s%s" %(self.dir,note)])
 
     def delete_note(self, note):
         if str(note).find(".md") == -1:
@@ -81,11 +100,18 @@ class n0te():
                 print("Cancel")
 
     def main(self):
+        import os
+        if len(sys.argv) == 2 and sys.argv[1] == "todo":
+            os.system("cat "+self.dir+"todo.md")
+            exit(0)
+        self.banner()
         if len(sys.argv) == 1:
             self.list_notes()
-
-        if "-l" in sys.argv and len(sys.argv) == 2:    # list notes
-            self.list_notes()
+        if "-l" in sys.argv :    # list notes
+            if len(sys.argv) == 2:
+                self.list_notes()
+            if len(sys.argv) == 3:
+                self.list_notes(sys.argv[2])
         elif "-h" in sys.argv:  # help
             print("n0te")
             print("\t-l: List n0tes")
